@@ -32,10 +32,15 @@ public class PlayerMovement : PlayerComponent
     private int wallDirX;
     private float timeToWallUnstick;
 
-    private void Start()
+    private bool checkForLastFrameState;
+    private bool groundedStateLastFrame = true;
+
+    protected override void Start()
     {
+        base.Start();
+
         controller2D = playerView.GetPlayerController2D;
-        SetJumpValues();
+        SetJumpValues();        
     }
 
     private void SetJumpValues()
@@ -55,15 +60,28 @@ public class PlayerMovement : PlayerComponent
 
         controller2D.Move (velocity * Time.deltaTime, directionalInput);
 
-		if (controller2D.Collisions.above || controller2D.Collisions.below) {
+		if (controller2D.Collisions.above || controller2D.Collisions.below)
+        {
 			if (controller2D.Collisions.slidingDownMaxSlope) {
 				velocity.y += controller2D.Collisions.slopeNormal.y * -gravity * Time.deltaTime;
 			} else {
 				velocity.y = 0;
 			}
-		}
+		} 
+
+        if(!controller2D.Collisions.below)
+        {
+             StartCoroutine(WaitForGroundedState());
+        }
     }
 
+    //TODO - Improve logic behind waiting
+    private IEnumerator WaitForGroundedState()
+    {
+        yield return new WaitForSeconds(0.2f);
+        groundedStateLastFrame = controller2D.Collisions.below;
+    }
+    
     public void SetDirectionalInput(Vector2 input)
     {
         directionalInput = input;
@@ -85,13 +103,16 @@ public class PlayerMovement : PlayerComponent
 				velocity.y = wallLeap.y;
 			}
 		}
-		if (controller2D.Collisions.below) {
+		if (groundedStateLastFrame) 
+        {           
 			if (controller2D.Collisions.slidingDownMaxSlope) {
 				if (directionalInput.x != -Mathf.Sign (controller2D.Collisions.slopeNormal.x)) { // not jumping against max slope
 					velocity.y = maxJumpVelocity * controller2D.Collisions.slopeNormal.y;
 					velocity.x = maxJumpVelocity * controller2D.Collisions.slopeNormal.x;
 				}
-			} else {
+			} 
+            else 
+            {
 				velocity.y = maxJumpVelocity;
 			}
 		}

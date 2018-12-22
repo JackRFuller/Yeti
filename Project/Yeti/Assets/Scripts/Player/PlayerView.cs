@@ -13,7 +13,7 @@ public class PlayerView : MonoBehaviour
     public PlayerMovement GetPlayerMovement {get {return playerMovement;}}
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         playerController2D = GetComponent<Controller2D>();

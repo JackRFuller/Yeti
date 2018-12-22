@@ -1,13 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerInput : PlayerComponent
 {
+    public event Action PlayerLockedCamera;
+
     private void Update()
     {
         CheckDirectionalInput();
         CheckJumpInput();
+        GetCameraLockingInput();
     }    
 
     private void CheckDirectionalInput()
@@ -24,5 +28,11 @@ public class PlayerInput : PlayerComponent
 		if (Input.GetKeyUp (KeyCode.Space)) {
 			playerView.GetPlayerMovement.OnJumpInputUp ();
 		}
+    }
+
+    private void GetCameraLockingInput()
+    {
+        if(Input.GetMouseButtonUp(0))
+            PlayerLockedCamera();
     }
 }

@@ -136,7 +136,7 @@ public class Controller2D : RaycastController
 				}
 
 				collisionInfo.below = directionY == -1;
-				collisionInfo.above = directionY == 1;
+				collisionInfo.above = directionY == 1;				
 			}
 		}
 
