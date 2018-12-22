@@ -5,7 +5,7 @@ using System;
 
 public class PlayerInput : PlayerComponent
 {
-    public event Action PlayerLockedCamera;
+    public event Action ToggleCameraLockState;
 
     private void Update()
     {
@@ -33,6 +33,6 @@ public class PlayerInput : PlayerComponent
     private void GetCameraLockingInput()
     {
         if(Input.GetMouseButtonUp(0))
-            PlayerLockedCamera();
+            ToggleCameraLockState();
     }
 }

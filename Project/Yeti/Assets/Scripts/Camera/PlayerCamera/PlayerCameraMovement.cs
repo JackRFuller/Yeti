@@ -7,6 +7,9 @@ public class PlayerCameraMovement : PlayerCameraComponent
     private Transform playerTargetTransform;
     private MovementState cameraMovementState;
 
+    private float lockCameraCooldown = 1.0f;
+    private bool canToggleCameraState = true;
+
     private enum MovementState
     {
         Locked,
@@ -21,7 +24,7 @@ public class PlayerCameraMovement : PlayerCameraComponent
         playerTargetTransform = GameManager.Instance.PlayerView.transform;
         cameraMovementState = MovementState.Following;  
 
-        GameManager.Instance.PlayerView.GetPlayerInput.PlayerLockedCamera += LockCameraPosition;      
+        GameManager.Instance.PlayerView.GetPlayerInput.ToggleCameraLockState += LockCameraPosition;      
     }   
 
     private void LateUpdate()
@@ -41,7 +44,17 @@ public class PlayerCameraMovement : PlayerCameraComponent
 
     private void LockCameraPosition()
     {
-        if(cameraMovementState != MovementState.Locked)
-            cameraMovementState = MovementState.Locked;
+        if(canToggleCameraState)
+        {
+            cameraMovementState = cameraMovementState == MovementState.Following? MovementState.Locked:MovementState.Following; 
+            StartCoroutine(CameraStateCooldown());
+            canToggleCameraState = false;
+        }        
+    }
+
+    private IEnumerator CameraStateCooldown()
+    {
+        yield return new WaitForSeconds(lockCameraCooldown);
+        canToggleCameraState = true;
     }
 }
