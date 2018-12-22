@@ -10,7 +10,7 @@ public class UIScreenLockIcons : MonoBehaviour
     [SerializeField] private Image lockCooldownImage;
     [SerializeField] private Sprite[] lockStateSprites;
 
-    [SerializeField] private LerpingClasses.FloatLerp lerpingAttributes;
+    [SerializeField] private FloatLerp lerpingAttributes;
 
     private int cameraLockState = 0; //0 = free, 1 = locked;
 
@@ -43,7 +43,7 @@ public class UIScreenLockIcons : MonoBehaviour
             return;
 
         float percenatgeComplete = lerpingAttributes.ReturnPercentageComplete();
-        float newValue = Mathf.Lerp(lerpingAttributes.startValue,lerpingAttributes.targetValue,percenatgeComplete);
+        float newValue = lerpingAttributes.ReturnLerpProgress(percenatgeComplete);
         lockCooldownImage.fillAmount = newValue;
 
         if(percenatgeComplete >= 1.0f)
