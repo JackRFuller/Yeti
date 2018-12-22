@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerMovement : PlayerComponent
 {  
     private Controller2D controller2D;
+
+    public event Action PlayerJumped;
 
     [Header("Movement Attributes")]
     [SerializeField] private float moveSpeed = 6;
@@ -25,9 +28,11 @@ public class PlayerMovement : PlayerComponent
     private float minJumpVelocity;
     
     private Vector3 velocity;
+    public Vector3 Velocity { get {return velocity;}}
     private float velocityXSmoothing;
 
     private Vector2 directionalInput;
+    public Vector2 DirectionalInput {get{return directionalInput;}}
     private bool wallSliding;
     private int wallDirX;
     private float timeToWallUnstick;
@@ -114,6 +119,7 @@ public class PlayerMovement : PlayerComponent
             else 
             {
 				velocity.y = maxJumpVelocity;
+                PlayerJumped(); //Used for triggering animations
 			}
 		}
 	}
