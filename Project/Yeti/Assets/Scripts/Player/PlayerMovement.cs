@@ -26,6 +26,8 @@ public class PlayerMovement : PlayerComponent
     private float gravity;
     private float maxJumpVelocity;
     private float minJumpVelocity;
+    private float jumpCount;
+    private const float maxJumpCount = 2;
     
     private Vector3 velocity;
     public Vector3 Velocity { get {return velocity;}}
@@ -53,6 +55,8 @@ public class PlayerMovement : PlayerComponent
         gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex,2);
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+
+        jumpCount = 0;
     }
 
     private void Update()
@@ -67,6 +71,8 @@ public class PlayerMovement : PlayerComponent
 
 		if (controller2D.Collisions.above || controller2D.Collisions.below)
         {
+            jumpCount = 0;
+
 			if (controller2D.Collisions.slidingDownMaxSlope) {
 				velocity.y += controller2D.Collisions.slopeNormal.y * -gravity * Time.deltaTime;
 			} else {
@@ -108,7 +114,7 @@ public class PlayerMovement : PlayerComponent
 				velocity.y = wallLeap.y;
 			}
 		}
-		if (groundedStateLastFrame) 
+		if (groundedStateLastFrame || jumpCount < maxJumpCount) 
         {           
 			if (controller2D.Collisions.slidingDownMaxSlope) {
 				if (directionalInput.x != -Mathf.Sign (controller2D.Collisions.slopeNormal.x)) { // not jumping against max slope
@@ -118,8 +124,9 @@ public class PlayerMovement : PlayerComponent
 			} 
             else 
             {
-				velocity.y = maxJumpVelocity;
-                PlayerJumped(); //Used for triggering animations
+                jumpCount++;
+                velocity.y = maxJumpVelocity;
+                PlayerJumped(); //Used for triggering animations 
 			}
 		}
 	}

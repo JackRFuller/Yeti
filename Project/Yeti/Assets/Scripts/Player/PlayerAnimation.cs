@@ -40,8 +40,11 @@ public class PlayerAnimation : PlayerComponent
 
     private void UpdatePlayerGroundedState()
     {
+        bool aboutToLand = playerView.GetPlayerController2D.AboutToLand;
         bool isGrounded = playerView.GetPlayerController2D.Collisions.below;
+
         playerAnimator.SetBool("isGrounded",isGrounded);
+        playerAnimator.SetBool("aboutToLand",aboutToLand);
     }
 
     private void PlayerJumped()

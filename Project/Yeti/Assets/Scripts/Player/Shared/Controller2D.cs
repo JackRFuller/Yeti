@@ -6,9 +6,11 @@ public class Controller2D : RaycastController
 {
     protected float maxSlopeAngle = 80;
 
+	private bool aboutToLand; //Used to determine whether the player is falling or not
     private CollisionInfo collisionInfo;
     private Vector2 playerInput;
 
+	public bool AboutToLand { get {return aboutToLand;}}
 	public CollisionInfo Collisions { get {return collisionInfo;}}
 
     protected override void Start()
@@ -62,10 +64,10 @@ public class Controller2D : RaycastController
 			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
 
-			Debug.DrawRay(rayOrigin, Vector2.right * directionX,Color.red);
+			Debug.DrawRay(rayOrigin, Vector2.right * directionX,Color.red);			
 
-			if (hit) {
-
+			if (hit)
+			{
 				if (hit.distance == 0) {
 					continue;
 				}
@@ -97,7 +99,7 @@ public class Controller2D : RaycastController
 					collisionInfo.left = directionX == -1;
 					collisionInfo.right = directionX == 1;
 				}
-			}
+			}			
 		}
 	}
 
@@ -113,7 +115,10 @@ public class Controller2D : RaycastController
 
 			Debug.DrawRay(rayOrigin, Vector2.up * directionY,Color.red);
 
-			if (hit) {
+			aboutToLand = (hit)? false: true;
+			
+			if (hit)
+			{				
 				if (hit.collider.tag == "Through") {
 					if (directionY == 1 || hit.distance == 0) {
 						continue;
