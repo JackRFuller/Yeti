@@ -46,6 +46,7 @@ public class PlayerMovement : PlayerComponent
     private bool groundedStateLastFrame = true;
 
     private bool isGroundPounding;
+    private DynamicPlatform targetPlatform;
     
 
     protected override void Start()
@@ -87,7 +88,15 @@ public class PlayerMovement : PlayerComponent
 			} 
             else 
             {
-                isGroundPounding = false;
+                //Triggers Dynamic Platform if this is the first time grounded since ground pound
+                if(isGroundPounding)
+                {
+                    if(targetPlatform != null)
+                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);
+
+                    isGroundPounding = false;
+                }
+
 				velocity.y = 0;
 			}
 		} 
@@ -117,6 +126,8 @@ public class PlayerMovement : PlayerComponent
 
         if(hit)
         {
+            targetPlatform = hit.collider.GetComponent<DynamicPlatform>();
+
             float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);
             Debug.Log(distanceFromPlatform);
 
