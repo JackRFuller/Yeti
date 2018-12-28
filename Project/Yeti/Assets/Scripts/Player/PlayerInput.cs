@@ -12,6 +12,7 @@ public class PlayerInput : PlayerComponent
         CheckDirectionalInput();
         CheckJumpInput();
         GetCameraLockingInput();
+        CheckGroundPoundInput();
     }    
 
     private void CheckDirectionalInput()
@@ -28,6 +29,12 @@ public class PlayerInput : PlayerComponent
 		if (Input.GetKeyUp (KeyCode.Space)) {
 			playerView.GetPlayerMovement.OnJumpInputUp ();
 		}
+    }
+
+    private void CheckGroundPoundInput()
+    {
+        if(Input.GetMouseButtonUp(1))
+            playerView.GetPlayerMovement.InitiateGroundPound();
     }
 
     private void GetCameraLockingInput()

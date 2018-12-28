@@ -13,6 +13,7 @@ public class PlayerAnimation : PlayerComponent
         base.Start();
         playerAnimator = GetComponentInChildren<Animator>();
         playerView.GetPlayerMovement.PlayerJumped += PlayerJumped;
+        playerView.GetPlayerMovement.PlayerGroundPounding += PlayerGroundPounding;
     }    
 
     private void Update()
@@ -50,5 +51,10 @@ public class PlayerAnimation : PlayerComponent
     private void PlayerJumped()
     {
         playerAnimator.SetTrigger("Jump");
+    }
+
+    private void PlayerGroundPounding()
+    {
+        playerAnimator.SetTrigger("GroundPound");
     }
 }

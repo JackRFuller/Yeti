@@ -8,6 +8,7 @@ public class PlayerMovement : PlayerComponent
     private Controller2D controller2D;
 
     public event Action PlayerJumped;
+    public event Action PlayerGroundPounding;
 
     [Header("Movement Attributes")]
     [SerializeField] private float moveSpeed = 6;
@@ -19,6 +20,8 @@ public class PlayerMovement : PlayerComponent
     [SerializeField] private Vector2 wallLeap;   
     [SerializeField] private float wallSlideMaxSpeed = 3;
     [SerializeField] private float wallStickTime = .25f;
+    [SerializeField] private float groundPoundSpeed = 70f;
+    [SerializeField] private LayerMask collisionMask;
     
     private float accelerationTimeAirborne = .2f;
     private float accelerationTimeGrounded = .1f;
@@ -42,6 +45,9 @@ public class PlayerMovement : PlayerComponent
     private bool checkForLastFrameState;
     private bool groundedStateLastFrame = true;
 
+    private bool isGroundPounding;
+    
+
     protected override void Start()
     {
         base.Start();
@@ -64,8 +70,11 @@ public class PlayerMovement : PlayerComponent
         if(controller2D == null)
             controller2D = playerView.GetPlayerController2D;
 
-        CalculateVelocity();
-        HandleWallSliding();
+        if(!isGroundPounding)
+        {
+            CalculateVelocity();
+            HandleWallSliding();
+        }
 
         controller2D.Move (velocity * Time.deltaTime, directionalInput);
 
@@ -75,7 +84,10 @@ public class PlayerMovement : PlayerComponent
 
 			if (controller2D.Collisions.slidingDownMaxSlope) {
 				velocity.y += controller2D.Collisions.slopeNormal.y * -gravity * Time.deltaTime;
-			} else {
+			} 
+            else 
+            {
+                isGroundPounding = false;
 				velocity.y = 0;
 			}
 		} 
@@ -96,6 +108,37 @@ public class PlayerMovement : PlayerComponent
     public void SetDirectionalInput(Vector2 input)
     {
         directionalInput = input;
+    }
+
+    public void InitiateGroundPound()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, 10,collisionMask);
+	    Debug.DrawRay(transform.position, -Vector2.up * 10,Color.green);
+
+        if(hit)
+        {
+            float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);
+            Debug.Log(distanceFromPlatform);
+
+            if(distanceFromPlatform > 3)
+            {
+                isGroundPounding = true;
+                velocity = Vector3.zero;
+                PlayerGroundPounding();
+            }
+        }
+        else
+        {
+             isGroundPounding = true;
+            velocity = Vector3.zero;
+            PlayerGroundPounding();
+        }
+    }
+
+    ///Called from PlayerAnimationEvent
+    public void GroundPound()
+    {        
+        velocity.y = -groundPoundSpeed;
     }
 
     public void OnJumpInputDown()
@@ -162,9 +205,7 @@ public class PlayerMovement : PlayerComponent
 			else {
 				timeToWallUnstick = wallStickTime;
 			}
-
 		}
-
 	}
 
     private void CalculateVelocity()
