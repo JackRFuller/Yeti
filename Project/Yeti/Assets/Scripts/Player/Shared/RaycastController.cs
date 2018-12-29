@@ -6,6 +6,8 @@ using UnityEngine;
 public class RaycastController : MonoBehaviour
 {
    [SerializeField] protected LayerMask collisionMask;
+   protected Bounds bounds;
+   private float objectOrientation;
 
    protected const float skinWidth = .015f;
    private const float distBetweenRays = .25f;
@@ -19,6 +21,8 @@ public class RaycastController : MonoBehaviour
    private BoxCollider2D objectCollider;
 
    public RayCastOrigins rayCastOrigins;
+   public float ObjectOrientation { get {return objectOrientation;}}
+
 
    protected virtual void Awake()
    {
@@ -32,35 +36,74 @@ public class RaycastController : MonoBehaviour
 
    protected void UpdateRayCastOrigins()
    {
-       Bounds bounds = objectCollider.bounds;
+       bounds = objectCollider.bounds;
        bounds.Expand(skinWidth * -2);
 
-       SetRayCastOriginsIfPlayerIs0Degrees(bounds);
+       SetRayCastOrigins();
    }
 
-   protected void CalculateRaySpacing()
+   public void PlayerOrientationUpdated()
+   {
+       CalculateRaySpacing();
+       SetRayCastOrigins();
+   }
+
+   public void CalculateRaySpacing()
    {
        Bounds bounds = objectCollider.bounds;
-       bounds.Expand(skinWidth * -2);
-
-       float boundsWidth = bounds.size.x;
-       float boundsHeight = bounds.size.y;
+       bounds.Expand(skinWidth * -2);      
 
        horizontalRayCount = Mathf.Clamp (horizontalRayCount, 2, int.MaxValue);
 	   verticalRayCount = Mathf.Clamp (verticalRayCount, 2, int.MaxValue);
 
-       horizontalRaySpacing = bounds.size.y / (horizontalRayCount - 1);
-       verticalRaySpacing = bounds.size.x / (verticalRayCount - 1);
+       float orientation = GetObjectOrientation();
+
+        if (orientation == 0 || orientation == 180)
+        {
+            horizontalRaySpacing = bounds.size.y / (horizontalRayCount - 1);
+            verticalRaySpacing = bounds.size.x / (verticalRayCount - 1);
+        }
+        if (orientation == 90 || orientation == 270)
+        {
+            horizontalRaySpacing = bounds.size.x / (horizontalRayCount - 1);
+            verticalRaySpacing = bounds.size.y / (verticalRayCount - 1);
+        }
    }
 
    #region RayCastOriginPositions()
    
-   private void SetRayCastOriginsIfPlayerIs0Degrees(Bounds bounds)
+   private void SetRayCastOrigins()
    {
-       rayCastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
-       rayCastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.min.y);
-       rayCastOrigins.topLeft = new Vector2(bounds.min.x,bounds.max.y);
-       rayCastOrigins.topRight = new Vector2(bounds.max.x, bounds.max.y);
+       objectOrientation = GetObjectOrientation();
+
+        if(objectOrientation == 0)
+        {
+            rayCastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
+            rayCastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.min.y);
+            rayCastOrigins.topLeft = new Vector2(bounds.min.x,bounds.max.y);
+            rayCastOrigins.topRight = new Vector2(bounds.max.x, bounds.max.y);
+        }
+        else if(objectOrientation == 180)
+        {
+            rayCastOrigins.bottomLeft = new Vector2(bounds.max.x, bounds.max.y);
+            rayCastOrigins.bottomRight = new Vector2(bounds.min.x, bounds.max.y);
+            rayCastOrigins.topLeft = new Vector2(bounds.min.x, bounds.min.y);
+            rayCastOrigins.topRight = new Vector2(bounds.max.x, bounds.min.y);
+        }
+        else if(objectOrientation == 90)
+        {
+            rayCastOrigins.bottomLeft = new Vector2(bounds.max.x, bounds.min.y);
+            rayCastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.max.y);
+            rayCastOrigins.topLeft = new Vector2(bounds.min.x, bounds.min.y);
+            rayCastOrigins.topRight = new Vector2(bounds.min.x, bounds.max.y);
+        }
+        else if(objectOrientation == 270)
+        {
+            rayCastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.max.y);
+            rayCastOrigins.bottomRight = new Vector2(bounds.min.x, bounds.min.y);
+            rayCastOrigins.topLeft = new Vector2(bounds.max.x, bounds.max.y);
+            rayCastOrigins.topRight = new Vector2(bounds.max.x, bounds.min.y);
+        }
    }
 
    #endregion
@@ -69,5 +112,11 @@ public class RaycastController : MonoBehaviour
    {
        public Vector2 topLeft, topRight;
        public Vector2 bottomLeft, bottomRight;
+   }
+
+   public float GetObjectOrientation()
+   {
+       float objectOrientation = Mathf.Abs(transform.eulerAngles.z);       
+       return objectOrientation;
    }
 }

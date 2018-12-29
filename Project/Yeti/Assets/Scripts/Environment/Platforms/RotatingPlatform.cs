@@ -7,6 +7,7 @@ public class RotatingPlatform : MonoBehaviour
     [SerializeField] private float rotationSpeed = 0.5f;
     [SerializeField] private float rotationFactor = 2; //Either 4 or 2
     private Vector3Lerp lerpingAttributes;
+    private PlayerView playerView;
 
     private void Start()
     {
@@ -17,6 +18,7 @@ public class RotatingPlatform : MonoBehaviour
     public void TriggerRotation(Transform player)
     {
         player.parent = this.transform;
+        playerView = player.GetComponent<PlayerView>();
 
         //Calculate if player is below or above the center point
         bool playerIsAbove = player.position.y > transform.position.y? true:false;
@@ -40,6 +42,7 @@ public class RotatingPlatform : MonoBehaviour
 
         lerpingAttributes.timeStartedLerping = Time.time;
         lerpingAttributes.hasStartedLerp = true;
+        playerView.GetPlayerMovement.FreezePlayerMovement();
     }
 
     private void Update()
@@ -58,6 +61,8 @@ public class RotatingPlatform : MonoBehaviour
         if(percentageComplete >= 1.0f)
         {
             lerpingAttributes.hasStartedLerp = false;
+            playerView.transform.parent = null;
+            playerView.GetPlayerMovement.UnFreezePlayerMovement();
         }
     }
 }

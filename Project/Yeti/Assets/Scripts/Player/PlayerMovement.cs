@@ -47,6 +47,13 @@ public class PlayerMovement : PlayerComponent
 
     private bool isGroundPounding;
     private DynamicPlatform targetPlatform;
+
+    private MovementState movementState = MovementState.Free;
+    private enum MovementState
+    {
+        Free,
+        Frozen,
+    }
     
 
     protected override void Start()
@@ -68,42 +75,37 @@ public class PlayerMovement : PlayerComponent
 
     private void Update()
     {
-        if(controller2D == null)
-            controller2D = playerView.GetPlayerController2D;
-
-        if(!isGroundPounding)
+        if(movementState == MovementState.Free)
         {
-            CalculateVelocity();
-            HandleWallSliding();
-        }
-
-        controller2D.Move (velocity * Time.deltaTime, directionalInput);
-
-		if (controller2D.Collisions.above || controller2D.Collisions.below)
-        {
-            jumpCount = 0;
-
-			if (controller2D.Collisions.slidingDownMaxSlope) {
-				velocity.y += controller2D.Collisions.slopeNormal.y * -gravity * Time.deltaTime;
-			} 
-            else 
+            if(!isGroundPounding)
             {
-                //Triggers Dynamic Platform if this is the first time grounded since ground pound
+                CalculateVelocity();
+                HandleWallSliding();
+            }            
+
+            controller2D.Move (velocity * Time.deltaTime);
+
+            if (controller2D.Collisions.above || controller2D.Collisions.below)
+            {
                 if(isGroundPounding)
                 {
                     if(targetPlatform != null)
-                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);
+                    {
+                        FreezePlayerMovement();
+                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);           
+                    } 
 
                     isGroundPounding = false;
                 }
+                
+                velocity.y = 0;
+                jumpCount = 0;
+            } 
 
-				velocity.y = 0;
-			}
-		} 
-
-        if(!controller2D.Collisions.below)
-        {
-             StartCoroutine(WaitForGroundedState());
+            if(!controller2D.Collisions.below)
+            {
+                StartCoroutine(WaitForGroundedState());
+            }
         }
     }
 
@@ -116,20 +118,35 @@ public class PlayerMovement : PlayerComponent
     
     public void SetDirectionalInput(Vector2 input)
     {
-        directionalInput = input;
+        float playerOrientation = controller2D.ObjectOrientation;
+
+        Vector3 tempInput = input;
+
+        if(playerOrientation == 180)
+        {
+            tempInput.x = -input.x;
+        }
+
+        directionalInput = tempInput;
     }
 
     public void InitiateGroundPound()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, 10,collisionMask);
-	    Debug.DrawRay(transform.position, -Vector2.up * 10,Color.green);
+        Vector2 rayDirection = Vector2.zero;       
+
+        if(controller2D.ObjectOrientation == 0)
+            rayDirection = Vector2.down;
+        if(controller2D.ObjectOrientation == 180)
+            rayDirection = Vector2.up;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 10,collisionMask);
+	    Debug.DrawRay(transform.position, rayDirection * 10,Color.magenta);
 
         if(hit)
         {
             targetPlatform = hit.collider.GetComponent<DynamicPlatform>();
 
-            float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);
-            Debug.Log(distanceFromPlatform);
+            float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);          
 
             if(distanceFromPlatform > 3)
             {
@@ -140,7 +157,7 @@ public class PlayerMovement : PlayerComponent
         }
         else
         {
-             isGroundPounding = true;
+            isGroundPounding = true;
             velocity = Vector3.zero;
             PlayerGroundPounding();
         }
@@ -152,22 +169,22 @@ public class PlayerMovement : PlayerComponent
         velocity.y = -groundPoundSpeed;
     }
 
-    public void OnJumpInputDown()
+    private void CheckDistanceFromTargetPlatform()
     {
-		if (wallSliding) {
-			if (wallDirX == directionalInput.x) {
-				velocity.x = -wallDirX * wallJumpClimb.x;
-				velocity.y = wallJumpClimb.y;
-			}
-			else if (directionalInput.x == 0) {
-				velocity.x = -wallDirX * wallJumpOff.x;
-				velocity.y = wallJumpOff.y;
-			}
-			else {
-				velocity.x = -wallDirX * wallLeap.x;
-				velocity.y = wallLeap.y;
-			}
-		}
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, 10,collisionMask);
+	    Debug.DrawRay(transform.position, -Vector2.up * 10,Color.green);
+
+        float distanceFromPlatform = Vector3.Distance(transform.position,hit.point);
+      
+        if(distanceFromPlatform < 2f)
+        {
+                    
+            isGroundPounding = false;
+        }
+    }
+
+    public void OnJumpInputDown()
+    {		
 		if (groundedStateLastFrame || jumpCount < maxJumpCount) 
         {           
 			if (controller2D.Collisions.slidingDownMaxSlope) {
@@ -222,7 +239,23 @@ public class PlayerMovement : PlayerComponent
     private void CalculateVelocity()
     {
         float targetVelocityX = directionalInput.x * moveSpeed;
-        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,(controller2D.Collisions.below)?accelerationTimeGrounded:accelerationTimeAirborne);
-        velocity.y += gravity * Time.deltaTime;
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing,(controller2D.Collisions.below)?accelerationTimeGrounded:accelerationTimeAirborne); 
+        velocity.y += gravity * Time.deltaTime;       
+    }
+
+    public void FreezePlayerMovement()
+    {
+        movementState = MovementState.Frozen;
+        playerView.GetPlayerAnimation.DisableAnimations();
+        velocity = Vector3.zero;
+        controller2D.Move(velocity * Time.deltaTime);
+    }
+
+    public void UnFreezePlayerMovement()
+    {
+        controller2D.PlayerOrientationUpdated();
+        playerView.GetPlayerAnimation.EnableAnimations(); 
+        movementState = MovementState.Free;  
+       
     }
 }

@@ -7,6 +7,8 @@ public class PlayerAnimation : PlayerComponent
     [SerializeField] private Transform playerMesh;
     private Animator playerAnimator;
 
+    private int lastDirectionX;
+
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -28,9 +30,19 @@ public class PlayerAnimation : PlayerComponent
         Vector3 facingDirection = Vector3.zero;
         int directionX = playerView.GetPlayerController2D.Collisions.faceDir;
 
-        facingDirection.y = directionX == 1? 90:270;
+        if(directionX != lastDirectionX)
+        {
+            facingDirection = playerMesh.eulerAngles;
 
-        playerMesh.eulerAngles = facingDirection;
+            if(playerView.GetPlayerController2D.ObjectOrientation == 0)
+                facingDirection.y = directionX == 1? 90:270;
+            else if(playerView.GetPlayerController2D.ObjectOrientation == 180)
+                facingDirection.y = directionX == 1? 270:90;
+            
+            playerMesh.eulerAngles = facingDirection;
+        }
+
+        lastDirectionX = directionX;
     }
 
     private void UpdatePlayerSpeed()
@@ -56,5 +68,15 @@ public class PlayerAnimation : PlayerComponent
     private void PlayerGroundPounding()
     {
         playerAnimator.SetTrigger("GroundPound");
+    }
+
+    public void DisableAnimations()
+    {
+        playerAnimator.enabled = false;
+    }
+
+    public void EnableAnimations()
+    {
+        playerAnimator.enabled = true;
     }
 }
