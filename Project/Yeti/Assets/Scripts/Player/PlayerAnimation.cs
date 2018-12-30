@@ -35,14 +35,9 @@ public class PlayerAnimation : PlayerComponent
 
         if(directionX != lastDirectionX)
         {
-            facingDirection = playerMesh.eulerAngles;
-
-            if(playerView.GetPlayerController2D.ObjectOrientation == 0)
-                facingDirection.y = directionX == 1? 90:270;
-            else if(playerView.GetPlayerController2D.ObjectOrientation == 180)
-                facingDirection.y = directionX == 1? 270:90;
-            
-            playerMesh.eulerAngles = facingDirection;
+            facingDirection = Vector2.zero;
+            facingDirection.y = directionX == 1? 90:270;            
+            playerMesh.localEulerAngles = facingDirection;
         }
 
         lastDirectionX = directionX;

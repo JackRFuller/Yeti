@@ -23,9 +23,11 @@ public class RotatingPlatform : MonoBehaviour
         playerView.GetPlayerMovement.SetNewPlayerParent(transform);
 
         //Calculate if player is below or above the center point
+        float platformRotation = Extensions.ReturnObjectOrientation(transform);       
+
         bool playerIsAbove = player.position.y > transform.position.y? true:false;
         bool playerIsOnRightSide = player.position.x > transform.position.x? true:false;
-
+        
         float rotationDirection = 0;
 
         if(playerIsAbove)

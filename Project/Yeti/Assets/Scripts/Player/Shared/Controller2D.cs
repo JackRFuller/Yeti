@@ -100,6 +100,16 @@ public class Controller2D : RaycastController
 			rayOriginDirection = Vector2.left;
 			rayDirection = Vector2.down;
 		}
+		else if(ObjectOrientation == 90)
+		{
+			rayOriginDirection = Vector2.up;
+			rayDirection = Vector2.left;
+		}
+		else if(ObjectOrientation == 270)
+		{
+			rayOriginDirection = Vector2.down;
+			rayDirection = Vector2.right;		
+		}
 
 		for (int i = 0; i < verticalRayCount; i ++) 
 		{
@@ -107,7 +117,7 @@ public class Controller2D : RaycastController
 			rayOrigin += rayOriginDirection * (verticalRaySpacing * i + moveAmount.x);			
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection * directionY, rayLength, collisionMask);			
 
-			Debug.DrawRay(rayOrigin, Vector2.up * directionY,Color.blue);
+			Debug.DrawRay(rayOrigin, rayDirection * directionY,Color.blue);
 
 			aboutToLand = (hit)? false: true;
 			

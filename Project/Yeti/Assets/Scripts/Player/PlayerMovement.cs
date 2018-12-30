@@ -134,6 +134,14 @@ public class PlayerMovement : PlayerComponent
         {
             tempInput.x = -input.x;
         }
+        else if(playerOrientation == 90)
+        {
+            tempInput.x = input.y;
+        }
+        else if(playerOrientation == 270)
+        {
+            tempInput.x = -input.y;
+        }
 
         directionalInput = tempInput;
     }
