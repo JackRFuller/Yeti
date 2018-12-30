@@ -23,21 +23,30 @@ public class RotatingPlatform : MonoBehaviour
         playerView.GetPlayerMovement.SetNewPlayerParent(transform);
 
         //Calculate if player is below or above the center point
-        float platformRotation = Extensions.ReturnObjectOrientation(transform);       
+        float platformRotation = Extensions.ReturnObjectOrientation(transform);  
 
+        float rotationDirection = 0;
         bool playerIsAbove = player.position.y > transform.position.y? true:false;
         bool playerIsOnRightSide = player.position.x > transform.position.x? true:false;
-        
-        float rotationDirection = 0;
 
-        if(playerIsAbove)
+        if(platformRotation == 0 || platformRotation == 180)
         {
-            rotationDirection = playerIsOnRightSide? 360 / -rotationFactor:360 / rotationFactor;
+             if(playerIsAbove)
+                rotationDirection = playerIsOnRightSide? 360 / -rotationFactor:360 / rotationFactor;
+            else
+                rotationDirection = playerIsOnRightSide? 360 / rotationFactor:360 / -rotationFactor;
         }
-        else
+        else if(platformRotation == 90 || platformRotation == 270)
         {
-            rotationDirection = playerIsOnRightSide? 360 / rotationFactor:360 / -rotationFactor;
-        }
+            if(playerIsAbove)
+                rotationDirection = playerIsOnRightSide? 360 / rotationFactor:360 / -rotationFactor;
+            else
+            {
+                rotationDirection = playerIsOnRightSide? 360 / -rotationFactor:360 / rotationFactor;
+            }
+           
+        }       
+       
 
         lerpingAttributes.startValue = transform.eulerAngles;
         lerpingAttributes.targetValue = new Vector3(transform.eulerAngles.x,

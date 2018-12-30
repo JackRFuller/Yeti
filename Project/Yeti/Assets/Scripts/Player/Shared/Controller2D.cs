@@ -44,9 +44,34 @@ public class Controller2D : RaycastController
 		transform.Translate (moveAmount);	
 	}
 
-    void HorizontalCollisions(ref Vector2 moveAmount) {
+    void HorizontalCollisions(ref Vector2 moveAmount)
+	{
 		float directionX = collisionInfo.faceDir;
 		float rayLength = Mathf.Abs (moveAmount.x) + skinWidth;
+
+		Vector2 rayOriginDirection = Vector2.zero;
+		Vector2 rayDirection = Vector2.zero;
+
+		if(ObjectOrientation == 0)
+		{
+			rayOriginDirection = Vector2.up;
+			rayDirection = Vector2.right;
+		}
+		else if(ObjectOrientation == 180)
+		{
+			rayOriginDirection = Vector2.down;
+			rayDirection = Vector2.left;
+		}
+		else if(ObjectOrientation == 90)
+		{
+			rayOriginDirection = Vector2.left;
+			rayDirection = Vector2.up;
+		}
+		else if(ObjectOrientation == 270)
+		{
+			rayOriginDirection = Vector2.right;
+			rayDirection = Vector2.down;
+		}
 
 		if (Mathf.Abs(moveAmount.x) < skinWidth) {
 			rayLength = 2*skinWidth;
@@ -55,17 +80,12 @@ public class Controller2D : RaycastController
 		for (int i = 0; i < horizontalRayCount; i ++) 
 		{
 			Vector2 rayOrigin = Vector2.zero;
-
-			if(ObjectOrientation == 0)
-				rayOrigin = (directionX == -1)?rayCastOrigins.bottomLeft:rayCastOrigins.bottomRight;
-
-			if(ObjectOrientation == 180)
-				rayOrigin = (directionX == -1)?rayCastOrigins.bottomRight:rayCastOrigins.bottomLeft;
+			rayOrigin = (directionX == -1)?rayCastOrigins.bottomLeft:rayCastOrigins.bottomRight;	
 			
-			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
-			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+			rayOrigin += rayOriginDirection * (horizontalRaySpacing * i);
+			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection * directionX, rayLength, collisionMask);
 
-			Debug.DrawRay(rayOrigin, Vector2.right * directionX,Color.red);			
+			Debug.DrawRay(rayOrigin, rayDirection * directionX,Color.red);			
 
 			if (hit)
 			{
