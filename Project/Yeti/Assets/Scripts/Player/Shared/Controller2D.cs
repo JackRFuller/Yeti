@@ -116,8 +116,7 @@ public class Controller2D : RaycastController
 				collisionInfo.below = directionY == -1;
 				collisionInfo.above = directionY == 1;
 			
-				moveAmount.y = (hit.distance - skinWidth) * directionY;		
-				Debug.Log(moveAmount.y);		
+				moveAmount.y = (hit.distance - skinWidth) * directionY;						
 				rayLength = hit.distance;
 			}
 		}

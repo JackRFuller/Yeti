@@ -7,8 +7,28 @@ public class PlayerInput : PlayerComponent
 {
     public event Action ToggleCameraLockState;
 
+    private InputState inputState;
+    private enum InputState
+    {
+        Locked,
+        Free,
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+
+        inputState = InputState.Free;
+
+        playerView.FreezePlayer += LockInput;
+        playerView.UnFreezePlayer += UnlockInput;
+    }
+
     private void Update()
     {
+        if(inputState != InputState.Free)
+            return;
+
         CheckDirectionalInput();
         CheckJumpInput();
         GetCameraLockingInput();
@@ -41,5 +61,15 @@ public class PlayerInput : PlayerComponent
     {
         if(Input.GetMouseButtonUp(0))
             ToggleCameraLockState();
+    }
+
+    private void LockInput()
+    {
+        inputState = InputState.Locked;
+    }
+
+    private void UnlockInput()
+    {
+        inputState = InputState.Free;
     }
 }

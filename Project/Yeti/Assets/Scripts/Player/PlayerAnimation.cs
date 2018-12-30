@@ -14,6 +14,9 @@ public class PlayerAnimation : PlayerComponent
     {
         base.Start();
         playerAnimator = GetComponentInChildren<Animator>();
+
+        playerView.FreezePlayer += DisableAnimations;
+        playerView.UnFreezePlayer += EnableAnimations;
         playerView.GetPlayerMovement.PlayerJumped += PlayerJumped;
         playerView.GetPlayerMovement.PlayerGroundPounding += PlayerGroundPounding;
     }    

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerView : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class PlayerView : MonoBehaviour
     public PlayerMovement GetPlayerMovement {get {return playerMovement;}}
     public PlayerAnimation GetPlayerAnimation { get {return playerAnimation;}}
 
+    public event Action FreezePlayer;
+    public event Action UnFreezePlayer;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -22,4 +26,18 @@ public class PlayerView : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         playerAnimation = GetComponent<PlayerAnimation>();
     }
+
+    public void LockPlayer()
+    {
+        if(FreezePlayer != null)
+            FreezePlayer();
+    }
+
+    public void UnlockPlayer()
+    {
+        if(UnFreezePlayer != null)
+            UnFreezePlayer();
+    }
+
+
 }

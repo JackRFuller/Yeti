@@ -16,9 +16,11 @@ public class RotatingPlatform : MonoBehaviour
     }
 
     public void TriggerRotation(Transform player)
-    {
-        player.parent = this.transform;
-        playerView = player.GetComponent<PlayerView>();
+    {        
+        if(!playerView)
+            playerView = player.GetComponent<PlayerView>();
+
+        playerView.GetPlayerMovement.SetNewPlayerParent(transform);
 
         //Calculate if player is below or above the center point
         bool playerIsAbove = player.position.y > transform.position.y? true:false;
@@ -41,8 +43,8 @@ public class RotatingPlatform : MonoBehaviour
                                                     transform.eulerAngles.z + rotationDirection);
 
         lerpingAttributes.timeStartedLerping = Time.time;
-        lerpingAttributes.hasStartedLerp = true;
-        playerView.GetPlayerMovement.FreezePlayerMovement();
+        lerpingAttributes.hasStartedLerp = true;     
+        playerView.LockPlayer();   
     }
 
     private void Update()
@@ -61,8 +63,8 @@ public class RotatingPlatform : MonoBehaviour
         if(percentageComplete >= 1.0f)
         {
             lerpingAttributes.hasStartedLerp = false;
-            playerView.transform.parent = null;
-            playerView.GetPlayerMovement.UnFreezePlayerMovement();
+            playerView.GetPlayerMovement.SetPlayerToOriginalParent();
+            playerView.UnlockPlayer(); 
         }
     }
 }

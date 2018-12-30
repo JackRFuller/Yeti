@@ -48,6 +48,8 @@ public class PlayerMovement : PlayerComponent
     private bool isGroundPounding;
     private DynamicPlatform targetPlatform;
 
+    private Transform originalParent;
+
     private MovementState movementState = MovementState.Free;
     private enum MovementState
     {
@@ -61,6 +63,12 @@ public class PlayerMovement : PlayerComponent
         base.Start();
 
         controller2D = playerView.GetPlayerController2D;
+
+        playerView.FreezePlayer += FreezePlayerMovement;
+        playerView.UnFreezePlayer += UnFreezePlayerMovement;
+
+        originalParent = transform.parent;
+
         SetJumpValues();        
     }
 
@@ -243,18 +251,26 @@ public class PlayerMovement : PlayerComponent
         velocity.y += gravity * Time.deltaTime;       
     }
 
+    public void SetNewPlayerParent(Transform newParent)
+    {
+        transform.parent = newParent;
+    }
+
+    public void SetPlayerToOriginalParent()
+    {
+        transform.parent = originalParent;
+    }
+
     public void FreezePlayerMovement()
     {
-        movementState = MovementState.Frozen;
-        playerView.GetPlayerAnimation.DisableAnimations();
+        movementState = MovementState.Frozen;      
         velocity = Vector3.zero;
         controller2D.Move(velocity * Time.deltaTime);
     }
 
     public void UnFreezePlayerMovement()
     {
-        controller2D.PlayerOrientationUpdated();
-        playerView.GetPlayerAnimation.EnableAnimations(); 
+        controller2D.PlayerOrientationUpdated();       
         movementState = MovementState.Free;  
        
     }

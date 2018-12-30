@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UIScreenLockIcons : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private Image lockIconImage;
+    [SerializeField] private Image lockIconImage; 
     [SerializeField] private Image lockCooldownImage;
     [SerializeField] private Sprite[] lockStateSprites;
 
@@ -18,12 +18,17 @@ public class UIScreenLockIcons : MonoBehaviour
     {
         GameManager.Instance.PlayerView.GetPlayerInput.ToggleCameraLockState += ToggleCameraStateUI;
         lockIconImage.sprite = lockStateSprites[cameraLockState];
+        lockCooldownImage.sprite = lockIconImage.sprite;
+        lockCooldownImage.fillAmount = 1;
     }
 
     private void ToggleCameraStateUI()
     {
         cameraLockState = cameraLockState == 0? cameraLockState = 1: cameraLockState = 0;
-        lockIconImage.sprite = lockStateSprites[cameraLockState];
+
+        lockIconImage.sprite = lockStateSprites[cameraLockState];     
+        lockCooldownImage.sprite = lockIconImage.sprite;
+
         lockCooldownImage.fillAmount = 0;
 
         lerpingAttributes.timeStartedLerping = Time.time;
@@ -43,7 +48,7 @@ public class UIScreenLockIcons : MonoBehaviour
             return;
 
         float percenatgeComplete = lerpingAttributes.ReturnPercentageComplete();
-        float newValue = lerpingAttributes.ReturnLerpProgress(percenatgeComplete);
+        float newValue = lerpingAttributes.ReturnLerpProgress(percenatgeComplete);      
         lockCooldownImage.fillAmount = newValue;
 
         if(percenatgeComplete >= 1.0f)
