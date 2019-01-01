@@ -20,6 +20,9 @@ public class DynamicPlatform : MonoBehaviour
     {
         if(canRotate)
             rotatingPlatform.TriggerRotation(player);
+
+        if(canMove)
+            movingPlatform.TriggerMovingPlatform(player);
     }
 
     

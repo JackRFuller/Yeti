@@ -98,8 +98,7 @@ public class PlayerMovement : PlayerComponent
                 if(isGroundPounding)
                 {
                     if(targetPlatform != null)
-                    {
-                        FreezePlayerMovement();
+                    {                        
                         targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);           
                     } 
 
@@ -154,14 +153,17 @@ public class PlayerMovement : PlayerComponent
             rayDirection = Vector2.down;
         if(controller2D.ObjectOrientation == 180)
             rayDirection = Vector2.up;
+        if(controller2D.ObjectOrientation == 90)
+            rayDirection = Vector2.right;
+        if(controller2D.ObjectOrientation == 270)
+            rayDirection = Vector2.left;
 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 10,collisionMask);
-	    Debug.DrawRay(transform.position, rayDirection * 10,Color.magenta);
+	    Debug.DrawRay(transform.position, rayDirection * 10,Color.magenta,1);
 
         if(hit)
         {
             targetPlatform = hit.collider.GetComponent<DynamicPlatform>();
-
             float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);          
 
             if(distanceFromPlatform > 3)
