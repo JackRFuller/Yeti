@@ -69,7 +69,6 @@ public class MovingPlatform : MonoBehaviour
         lerpingAttributes.targetValue = positionIndex == 0? positionB:positionA;
         lerpingAttributes.timeStartedLerping = Time.time;
         lerpingAttributes.hasStartedLerp = true;
-        playerView.LockPlayer();
     }
 
     private void MovePlatform()

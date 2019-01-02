@@ -20,7 +20,7 @@ public class PlayerMovement : PlayerComponent
     [SerializeField] private Vector2 wallLeap;   
     [SerializeField] private float wallSlideMaxSpeed = 3;
     [SerializeField] private float wallStickTime = .25f;
-    [SerializeField] private float groundPoundSpeed = 70f;
+    [SerializeField] private float groundPoundSpeed = 5f;
     [SerializeField] private LayerMask collisionMask;
     
     private float accelerationTimeAirborne = .2f;
@@ -45,7 +45,8 @@ public class PlayerMovement : PlayerComponent
     private bool checkForLastFrameState;
     private bool groundedStateLastFrame = true;
 
-    private bool isGroundPounding;
+    private bool isGroundPounding;    
+
     private DynamicPlatform targetPlatform;
     private Vector3 hitPoint;
     private bool canGroundPound;
@@ -90,23 +91,17 @@ public class PlayerMovement : PlayerComponent
         {
             if(!isGroundPounding)
             {
-                CalculateVelocity();
-                HandleWallSliding();
+                CalculateVelocity();                
                 CheckIfPlayerCanGroundPound();
-            }            
+            }       
 
             controller2D.Move (velocity * Time.deltaTime);
 
             if (controller2D.Collisions.above || controller2D.Collisions.below)
             {
-                if(isGroundPounding)
+                if(controller2D.Collisions.below)
                 {
-                    if(targetPlatform != null)
-                    {                        
-                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);   
-                    } 
-
-                    isGroundPounding = false;
+                    CheckAndTriggerGroundPoundOnPlatform();
                 }
                 
                 velocity.y = 0;
@@ -117,6 +112,25 @@ public class PlayerMovement : PlayerComponent
             {
                 StartCoroutine(WaitForGroundedState());
             }
+        }
+    }
+
+    private void CheckAndTriggerGroundPoundOnPlatform()
+    {
+        if(isGroundPounding)
+        {
+            playerView.LockPlayer();
+
+            if(targetPlatform != null)   
+            {
+                 targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);                
+            }   
+            else
+            {
+               playerView.UnlockPlayer();
+            }
+            
+            isGroundPounding = false;
         }
     }
 
@@ -152,7 +166,7 @@ public class PlayerMovement : PlayerComponent
     //TODO - Used for UI purposes, needs to be tidied up
     private void CheckIfPlayerCanGroundPound()
     {
-         Vector2 rayDirection = Vector2.zero;       
+        Vector2 rayDirection = Vector2.zero;       
 
         if(controller2D.ObjectOrientation == 0)
             rayDirection = Vector2.down;
@@ -176,14 +190,13 @@ public class PlayerMovement : PlayerComponent
             }
             else
             {
-                 canGroundPound = false;
+                canGroundPound = false;
             }
         }
         else
         {
              canGroundPound = true;
-        }
-	   
+        }	   
     }
 
     public void InitiateGroundPound()
@@ -240,8 +253,7 @@ public class PlayerMovement : PlayerComponent
         float distanceFromPlatform = Vector3.Distance(transform.position,hit.point);
       
         if(distanceFromPlatform < 2f)
-        {
-                    
+        {                    
             isGroundPounding = false;
         }
     }
@@ -271,34 +283,6 @@ public class PlayerMovement : PlayerComponent
             velocity.y = minJumpVelocity;
     }
 
-    void HandleWallSliding() 
-    {
-		wallDirX = (controller2D.Collisions.left) ? -1 : 1;
-		wallSliding = false;
-		if ((controller2D.Collisions.left || controller2D.Collisions.right) && !controller2D.Collisions.below && velocity.y < 0) {
-			wallSliding = true;
-
-			if (velocity.y < -wallSlideMaxSpeed) {
-				velocity.y = -wallSlideMaxSpeed;
-			}
-
-			if (timeToWallUnstick > 0) {
-				velocityXSmoothing = 0;
-				velocity.x = 0;
-
-				if (directionalInput.x != wallDirX && directionalInput.x != 0) {
-					timeToWallUnstick -= Time.deltaTime;
-				}
-				else {
-					timeToWallUnstick = wallStickTime;
-				}
-			}
-			else {
-				timeToWallUnstick = wallStickTime;
-			}
-		}
-	}
-
     private void CalculateVelocity()
     {
         float targetVelocityX = directionalInput.x * moveSpeed;
@@ -316,6 +300,18 @@ public class PlayerMovement : PlayerComponent
         transform.parent = originalParent;
     }
 
+    public void SnapPlayerOrientation()
+    {
+        float playerRotation = transform.eulerAngles.z;
+        playerRotation = playerRotation / 10;
+        playerRotation = Mathf.Round(playerRotation);
+        playerRotation*= 10;
+
+        Vector3 newRot = Vector3.zero;
+        newRot.z = playerRotation;
+        transform.eulerAngles = newRot;         
+    }
+
     public void FreezePlayerMovement()
     {
         canGroundPound = false;
@@ -326,7 +322,7 @@ public class PlayerMovement : PlayerComponent
 
     public void UnFreezePlayerMovement()
     {
-        controller2D.PlayerOrientationUpdated();       
-        movementState = MovementState.Free;  
-    }
+        controller2D.PlayerOrientationUpdated();  
+         movementState = MovementState.Free; 
+    }   
 }

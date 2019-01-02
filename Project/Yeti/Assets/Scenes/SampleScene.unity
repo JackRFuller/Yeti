@@ -553,7 +553,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 729295953}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 3.93, y: 7.32, z: 0}
   m_LocalScale: {x: 6, y: 0.5, z: 1}
   m_Children:
@@ -561,7 +561,7 @@ Transform:
   - {fileID: 1861385627}
   m_Father: {fileID: 1441699954}
   m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
 --- !u!114 &729295955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2798,6 +2798,16 @@ PrefabInstance:
     - target: {fileID: 8306724583632733305, guid: 6798677de09056e4aadd397064ec62ec,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8306724583632733301, guid: 6798677de09056e4aadd397064ec62ec,
+        type: 3}
+      propertyPath: groundPoundSpeed
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2048736613752144913, guid: 6798677de09056e4aadd397064ec62ec,
+        type: 3}
+      propertyPath: renderers.Array.size
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

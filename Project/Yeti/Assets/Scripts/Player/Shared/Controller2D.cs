@@ -35,7 +35,6 @@ public class Controller2D : RaycastController
 
 		if(moveAmount.x != 0)
 			HorizontalCollisions(ref moveAmount);
-
 		
 		if (moveAmount.y != 0)
 			VerticalCollisions (ref moveAmount);

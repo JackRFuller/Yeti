@@ -44,18 +44,17 @@ public class RotatingPlatform : MonoBehaviour
             {
                 rotationDirection = playerIsOnRightSide? 360 / -rotationFactor:360 / rotationFactor;
             }
-           
-        }       
-       
+        }
+
+        Vector3 targetValue = new Vector3(transform.eulerAngles.x,
+                                        transform.eulerAngles.y,
+                                        Mathf.Round(transform.eulerAngles.z + rotationDirection));       
 
         lerpingAttributes.startValue = transform.eulerAngles;
-        lerpingAttributes.targetValue = new Vector3(transform.eulerAngles.x,
-                                                    transform.eulerAngles.y,
-                                                    transform.eulerAngles.z + rotationDirection);
+        lerpingAttributes.targetValue = targetValue;
 
         lerpingAttributes.timeStartedLerping = Time.time;
-        lerpingAttributes.hasStartedLerp = true;     
-        playerView.LockPlayer();   
+        lerpingAttributes.hasStartedLerp = true; 
     }
 
     private void Update()
@@ -73,8 +72,22 @@ public class RotatingPlatform : MonoBehaviour
 
         if(percentageComplete >= 1.0f)
         {
+            Vector3 forcedRotation = lerpingAttributes.targetValue;
+
+            if(Mathf.Approximately(360,forcedRotation.z))
+                forcedRotation.z = 0;              
+
+            transform.eulerAngles = forcedRotation;           
             lerpingAttributes.hasStartedLerp = false;
+          
+            if(Mathf.Approximately(0f, transform.eulerAngles.z))
+            {
+                Vector3 tempTransform = Vector3.zero;
+                transform.eulerAngles = tempTransform;
+            }
+            
             playerView.GetPlayerMovement.SetPlayerToOriginalParent();
+            playerView.GetPlayerMovement.SnapPlayerOrientation();
             playerView.UnlockPlayer(); 
         }
     }
