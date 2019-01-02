@@ -47,6 +47,9 @@ public class PlayerMovement : PlayerComponent
 
     private bool isGroundPounding;
     private DynamicPlatform targetPlatform;
+    private Vector3 hitPoint;
+    private bool canGroundPound;
+    public bool CanGroundPound {get{return canGroundPound;}}
 
     private Transform originalParent;
 
@@ -89,6 +92,7 @@ public class PlayerMovement : PlayerComponent
             {
                 CalculateVelocity();
                 HandleWallSliding();
+                CheckIfPlayerCanGroundPound();
             }            
 
             controller2D.Move (velocity * Time.deltaTime);
@@ -99,7 +103,7 @@ public class PlayerMovement : PlayerComponent
                 {
                     if(targetPlatform != null)
                     {                        
-                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);           
+                        targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);   
                     } 
 
                     isGroundPounding = false;
@@ -145,8 +149,48 @@ public class PlayerMovement : PlayerComponent
         directionalInput = tempInput;
     }
 
+    //TODO - Used for UI purposes, needs to be tidied up
+    private void CheckIfPlayerCanGroundPound()
+    {
+         Vector2 rayDirection = Vector2.zero;       
+
+        if(controller2D.ObjectOrientation == 0)
+            rayDirection = Vector2.down;
+        if(controller2D.ObjectOrientation == 180)
+            rayDirection = Vector2.up;
+        if(controller2D.ObjectOrientation == 90)
+            rayDirection = Vector2.right;
+        if(controller2D.ObjectOrientation == 270)
+            rayDirection = Vector2.left;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 10,collisionMask);
+
+        if(hit)
+        {           
+            hitPoint = hit.point;
+            float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);          
+
+            if(distanceFromPlatform > 3)
+            {
+                canGroundPound = true;
+            }
+            else
+            {
+                 canGroundPound = false;
+            }
+        }
+        else
+        {
+             canGroundPound = true;
+        }
+	   
+    }
+
     public void InitiateGroundPound()
     {
+        if(isGroundPounding)
+            return;
+
         Vector2 rayDirection = Vector2.zero;       
 
         if(controller2D.ObjectOrientation == 0)
@@ -164,6 +208,7 @@ public class PlayerMovement : PlayerComponent
         if(hit)
         {
             targetPlatform = hit.collider.GetComponent<DynamicPlatform>();
+            hitPoint = hit.point;
             float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);          
 
             if(distanceFromPlatform > 3)
@@ -273,6 +318,7 @@ public class PlayerMovement : PlayerComponent
 
     public void FreezePlayerMovement()
     {
+        canGroundPound = false;
         movementState = MovementState.Frozen;      
         velocity = Vector3.zero;
         controller2D.Move(velocity * Time.deltaTime);
@@ -282,6 +328,5 @@ public class PlayerMovement : PlayerComponent
     {
         controller2D.PlayerOrientationUpdated();       
         movementState = MovementState.Free;  
-       
     }
 }

@@ -15,6 +15,8 @@ public class PlayerView : MonoBehaviour
     public PlayerMovement GetPlayerMovement {get {return playerMovement;}}
     public PlayerAnimation GetPlayerAnimation { get {return playerAnimation;}}
 
+    private int numberOfTimesFrozen;
+    private int numberOfTimesUnFrozen;
     public event Action FreezePlayer;
     public event Action UnFreezePlayer;
 
@@ -29,14 +31,28 @@ public class PlayerView : MonoBehaviour
 
     public void LockPlayer()
     {
+        numberOfTimesFrozen++;
+
         if(FreezePlayer != null)
             FreezePlayer();
     }
 
     public void UnlockPlayer()
     {
-        if(UnFreezePlayer != null)
+        numberOfTimesUnFrozen++;
+
+        if(numberOfTimesUnFrozen == numberOfTimesFrozen)
+            StartCoroutine(CoolDownBeforeBeingAbleToMoveAgain());
+    }
+
+     IEnumerator CoolDownBeforeBeingAbleToMoveAgain()
+    {
+        yield return new WaitForSeconds(0.1f);
+         if(UnFreezePlayer != null)
             UnFreezePlayer();
+
+        numberOfTimesFrozen = 0;
+        numberOfTimesUnFrozen = 0;       
     }
 
 

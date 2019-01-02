@@ -26,5 +26,10 @@ public class MovingPlatformEditor : Editor
         {
             movingPlatform.SetToStartingPosition();
         }
+
+        if(GUILayout.Button("Create Path"))
+        {
+            movingPlatform.CreatePath();
+        }
     }
 }
