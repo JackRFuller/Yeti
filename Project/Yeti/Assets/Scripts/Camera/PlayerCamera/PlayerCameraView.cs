@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class PlayerCameraView : MonoBehaviour
 {
-    private Camera camera;
-    private PlayerView playerView;
+    private Camera playerCamera;
+    private PlayerCameraMovement cameraMovement;
+   
+    public Camera Camera {get {return playerCamera;}}
+    public PlayerCameraMovement GetCameraMovement { get {return cameraMovement;}}    
 
-    public Camera Camera {get {return camera;}}
-    public PlayerView PlayerView {get {return playerView;}}
-
-    private void Start()
+    private void Awake()
     {
-        camera = GetComponent<Camera>();
-        playerView = GameManager.Instance.PlayerView;        
+        playerCamera = GetComponent<Camera>();
+        cameraMovement = GetComponent<PlayerCameraMovement>();
     }
 }

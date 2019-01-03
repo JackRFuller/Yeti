@@ -1,16 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerCameraMovement : PlayerCameraComponent
 {
-    private Transform playerTargetTransform;
-    private MovementState cameraMovementState;
+    public event Action<float> CameraLocked;
+    public event Action<float> CameraTimerRunning;
+    public event Action CameraUnlocked;
 
-    private float lockCameraCooldown = 1.0f;
-    private bool canToggleCameraState = true;
+    private Transform playerTargetTransform;
+    private MovementState cameraMovementState; 
 
     [SerializeField] private Vector3Lerp cameraLerpingAttributes;
+
+    private float cameraLockTimerLength;
+    private float cameraLockTimer;
 
     private enum MovementState
     {
@@ -25,10 +30,14 @@ public class PlayerCameraMovement : PlayerCameraComponent
         base.Start();
 
         playerTargetTransform = GameManager.Instance.PlayerView.transform;
-        cameraMovementState = MovementState.Following;  
-
-        GameManager.Instance.PlayerView.GetPlayerInput.ToggleCameraLockState += ToggleCameraMovementState;      
+        cameraMovementState = MovementState.Following;
     }   
+
+    private void Update()
+    {
+        if(cameraMovementState == MovementState.Locked)
+            RunCameraLockTimer();
+    }
 
     private void LateUpdate()
     {
@@ -61,25 +70,30 @@ public class PlayerCameraMovement : PlayerCameraComponent
         }
     }
 
-    private void ToggleCameraMovementState()
-    {
-        if(canToggleCameraState)
-        {
-            cameraMovementState = cameraMovementState == MovementState.Following? MovementState.Locked:MovementState.Returning; 
-            StartCoroutine(CameraStateCooldown());
-            canToggleCameraState = false;
+    #region Camera Locking
 
-            if(cameraMovementState == MovementState.Returning)
-            {
-                InitCameraReturn();
-            }
-        }        
+    public void LockCamera(float timeLockedFor)
+    {
+        cameraLockTimerLength += timeLockedFor;
+        cameraMovementState = MovementState.Locked;            
+        
+        CameraLocked(timeLockedFor);
     }
 
-     private IEnumerator CameraStateCooldown()
+    private void RunCameraLockTimer()
     {
-        yield return new WaitForSeconds(lockCameraCooldown);
-        canToggleCameraState = true;
+        cameraLockTimer += Time.deltaTime;
+        CameraTimerRunning(cameraLockTimer);     
+        if(cameraLockTimer >= cameraLockTimerLength)
+        {
+            
+            cameraLockTimer = 0;
+            cameraLockTimerLength = 0;
+            InitCameraReturn();
+
+            if(CameraUnlocked != null)
+                CameraUnlocked();
+        } 
     }
 
     private void InitCameraReturn()
@@ -90,7 +104,9 @@ public class PlayerCameraMovement : PlayerCameraComponent
                                                           -10);
 
         cameraLerpingAttributes.timeStartedLerping = Time.time;
+
+        cameraMovementState = MovementState.Returning;
     }
 
-   
+    #endregion
 }

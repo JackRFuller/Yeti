@@ -5,8 +5,6 @@ using System;
 
 public class PlayerInput : PlayerComponent
 {
-    public event Action ToggleCameraLockState;
-
     private InputState inputState;
     private enum InputState
     {
@@ -30,8 +28,7 @@ public class PlayerInput : PlayerComponent
             return;
 
         CheckDirectionalInput();
-        CheckJumpInput();
-        GetCameraLockingInput();
+        CheckJumpInput();       
         CheckGroundPoundInput();
     }    
 
@@ -53,15 +50,9 @@ public class PlayerInput : PlayerComponent
 
     private void CheckGroundPoundInput()
     {
-        if(Input.GetMouseButtonUp(1))
-            playerView.GetPlayerMovement.InitiateGroundPound();
-    }
-
-    private void GetCameraLockingInput()
-    {
         if(Input.GetMouseButtonUp(0))
-            ToggleCameraLockState();
-    }
+            playerView.GetPlayerMovement.InitiateGroundPound();
+    }    
 
     private void LockInput()
     {

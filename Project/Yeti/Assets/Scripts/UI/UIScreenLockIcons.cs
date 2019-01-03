@@ -8,52 +8,41 @@ public class UIScreenLockIcons : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private Image lockIconImage; 
     [SerializeField] private Image lockCooldownImage;
-    [SerializeField] private Sprite[] lockStateSprites;
-
-    [SerializeField] private FloatLerp lerpingAttributes;
-
-    private int cameraLockState = 0; //0 = free, 1 = locked;
+  
+    private float cameraLockTimerLength;
 
     private void Start()
     {
-        GameManager.Instance.PlayerView.GetPlayerInput.ToggleCameraLockState += ToggleCameraStateUI;
-        lockIconImage.sprite = lockStateSprites[cameraLockState];
+        GameManager.Instance.PlayerCameraView.GetCameraMovement.CameraLocked += StartCameraLockUICooldown;
+        GameManager.Instance.PlayerCameraView.GetCameraMovement.CameraTimerRunning += ShowLockCooldownProgress;
+        
+      
         lockCooldownImage.sprite = lockIconImage.sprite;
-        lockCooldownImage.fillAmount = 1;
+        lockCooldownImage.fillAmount = 0;
+
+        lockCooldownImage.enabled = false;
+        lockIconImage.enabled = false;
     }
 
-    private void ToggleCameraStateUI()
+    private void StartCameraLockUICooldown(float timerLength)
     {
-        cameraLockState = cameraLockState == 0? cameraLockState = 1: cameraLockState = 0;
-
-        lockIconImage.sprite = lockStateSprites[cameraLockState];     
-        lockCooldownImage.sprite = lockIconImage.sprite;
+        cameraLockTimerLength = timerLength;
 
         lockCooldownImage.fillAmount = 0;
 
-        lerpingAttributes.timeStartedLerping = Time.time;
-        lerpingAttributes.startValue = 0;
-        lerpingAttributes.targetValue = 1;
-        lerpingAttributes.hasStartedLerp = true;
+        lockCooldownImage.enabled = true;
+        lockIconImage.enabled = true;
     }
 
-    private void Update()
+    private void ShowLockCooldownProgress(float cameraLockTimer)
     {
-        ShowLockCooldownState();
-    }
+        float percentageComplete = cameraLockTimer / cameraLockTimerLength;
+        lockCooldownImage.fillAmount = percentageComplete;
 
-    private void ShowLockCooldownState()
-    {
-        if(!lerpingAttributes.hasStartedLerp)
-            return;
-
-        float percenatgeComplete = lerpingAttributes.ReturnPercentageComplete();
-        float newValue = lerpingAttributes.ReturnLerpProgress(percenatgeComplete);      
-        lockCooldownImage.fillAmount = newValue;
-
-        if(percenatgeComplete >= 1.0f)
+        if(percentageComplete >= 1.0f)
         {
-            lerpingAttributes.hasStartedLerp = false;
+            lockCooldownImage.enabled = false;
+            lockIconImage.enabled = false;
         }
     }
 }

@@ -120,10 +120,23 @@ public class PlayerMovement : PlayerComponent
         if(isGroundPounding)
         {
             playerView.LockPlayer();
+            //Set Player To HitPoint Position                
+            Vector3 newPosition = hitPoint;
+            if(controller2D.ObjectOrientation == 0)
+                newPosition.y += 0.75f;
+            if(controller2D.ObjectOrientation == 180)
+                newPosition.y -= 0.75f;
+            if(controller2D.ObjectOrientation == 90)
+                newPosition.x -= 0.75f;
+            if(controller2D.ObjectOrientation == 270)
+                newPosition.x += 0.75f;
+
+            transform.position = newPosition;
+            
 
             if(targetPlatform != null)   
-            {
-                 targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);                
+            {                
+                targetPlatform.TriggerDynamicPlatformBehaviours(this.transform);                
             }   
             else
             {
@@ -180,8 +193,7 @@ public class PlayerMovement : PlayerComponent
         RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, 10,collisionMask);
 
         if(hit)
-        {           
-            hitPoint = hit.point;
+        { 
             float distanceFromPlatform = Vector3.Distance(transform.position, hit.point);          
 
             if(distanceFromPlatform > 3)

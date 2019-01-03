@@ -19,10 +19,10 @@ public class ScreenWrappable : MonoBehaviour
     // Start is called before the first frame update
     protected void Start()
     {
-        GameManager.Instance.PlayerView.GetPlayerInput.ToggleCameraLockState += InitScreenWrap;        
+        GameManager.Instance.PlayerCameraView.GetCameraMovement.CameraLocked += InitScreenWrap;        
     }
 
-	private void InitScreenWrap()
+	private void InitScreenWrap(float screenLockLength)
 	{
 		if(!hasInitScreenWrap)
 		{

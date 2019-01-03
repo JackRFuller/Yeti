@@ -37,6 +37,8 @@ public class MovingPlatform : MonoBehaviour
     {
          if(!playerView)
             playerView = player.GetComponent<PlayerView>();
+
+        bool platformMovementInitiated = false;
         
         //Determine where the player is in relation to the moving platform  
         float platformRotation = Extensions.ReturnObjectOrientation(transform);
@@ -47,7 +49,8 @@ public class MovingPlatform : MonoBehaviour
             bool playerIsAbove = player.position.y > transform.position.y?true:false;
             if(playerIsAbove && transform.position.y > targetPosition.y || !playerIsAbove && transform.position.y < targetPosition.y)
             {
-               InitiatePlatformMovement();               
+               InitiatePlatformMovement();   
+               platformMovementInitiated = true;            
             }
         } 
         if(platformRotation == 90 || platformRotation == 270)
@@ -57,8 +60,12 @@ public class MovingPlatform : MonoBehaviour
             if(playerIsOnRightSide && transform.position.x > targetPosition.x || !playerIsOnRightSide && targetPosition.x > transform.position.x)
             {
                 InitiatePlatformMovement();
+                platformMovementInitiated = true;     
             }
-        }      
+        }   
+
+        if(!platformMovementInitiated)
+            playerView.UnlockPlayer();   
     }
 
     private void InitiatePlatformMovement()
