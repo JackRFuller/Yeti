@@ -9,11 +9,13 @@ public class PlayerView : MonoBehaviour
     private Controller2D playerController2D;
     private PlayerMovement playerMovement;
     private PlayerAnimation playerAnimation;
+    private PlayerInventory playerInventory;
 
     public PlayerInput GetPlayerInput { get {return playerInput;}}
     public Controller2D GetPlayerController2D {get {return playerController2D;}}
     public PlayerMovement GetPlayerMovement {get {return playerMovement;}}
     public PlayerAnimation GetPlayerAnimation { get {return playerAnimation;}}
+    public PlayerInventory GetPlayerInventory { get {return playerInventory;}}
 
     private int numberOfTimesFrozen;
     private int numberOfTimesUnFrozen;
@@ -27,6 +29,7 @@ public class PlayerView : MonoBehaviour
         playerController2D = GetComponent<Controller2D>();
         playerMovement = GetComponent<PlayerMovement>();
         playerAnimation = GetComponent<PlayerAnimation>();
+        playerInventory = GetComponent<PlayerInventory>();
     }
 
     public void LockPlayer()
